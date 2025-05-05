@@ -5,6 +5,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "petersonlock.h"
 
 uint64
 sys_exit(void)
@@ -89,3 +90,35 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64
+sys_peterson_create(void){
+  return peterson_create();
+}
+
+uint 
+sys_peterson_acquire(void){
+  int lock_id;
+  argint(0, &lock_id);
+  int role;
+  argint(1, &role);
+  return peterson_acquire(lock_id, role);
+}
+
+uint 
+sys_peterson_release(void){
+  int lock_id;
+  argint(0, &lock_id);
+  int role;
+  argint(1, &role);
+  return peterson_release(lock_id, role);
+}
+
+uint
+sys_peterson_destroy(void) {
+  int lock_id;
+  argint(0, &lock_id);
+  return peterson_destroy(lock_id);
+}
+
+

@@ -13,6 +13,7 @@ OBJS = \
   $K/main.o \
   $K/vm.o \
   $K/proc.o \
+  $K/petersonlock.o \
   $K/swtch.o \
   $K/trampoline.o \
   $K/trap.o \
@@ -116,6 +117,7 @@ mkfs/mkfs: mkfs/mkfs.c $K/fs.h $K/param.h
 .PRECIOUS: %.o
 
 UPROGS=\
+	$U/_petersontest\
 	$U/_cat\
 	$U/_echo\
 	$U/_forktest\
