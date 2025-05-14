@@ -117,6 +117,7 @@ mkfs/mkfs: mkfs/mkfs.c $K/fs.h $K/param.h
 .PRECIOUS: %.o
 
 UPROGS=\
+	$U/_tournament\
 	$U/_petersontest\
 	$U/_cat\
 	$U/_echo\

@@ -3,13 +3,23 @@
 #include "user/user.h"
 
 int * locks;
-int * pids;
+int tournamentId = -1;
 int processesNum;
+
+// helper func
+int log(int n) {
+    int count = 0;
+    while(n != 1) {
+        count++;
+        n = n >> 1;
+    }
+    return count;
+}
+
 
 int tournament_create(int processes){
     processesNum = processes;
-    locks = malloc(sizeof(int*) * (processes-1));
-    pids = malloc(sizeof(int*) * processes);
+    locks = malloc(sizeof(int) * (processes - 1));
     for (int i = 0; i < processes - 1; i++) {
         locks[i] = peterson_create();
         if (locks[i] == -1)
@@ -23,56 +33,44 @@ int tournament_create(int processes){
         
         
         if (n == 0) { // if child
-            pids[i] = getpid();
+            tournamentId = i;
             return i; // tournament ID
         }
     }
-    pids[processes-1] = getpid();
+    tournamentId = processes - 1;
     return processes-1;
 
 
 }
 
 int tournament_acquire(void){
-    int index = getTournamentID(getpid());
-
+    int index = tournamentId;
     int levels = log(processesNum);
+    
 
     for (int l = levels - 1; l >= 0; l--) {
         int role =  (index & (1 << (levels - l - 1))) >> (levels - l - 1);
-        int lock = index >> levels - l;
-
-        peterson_acquire(locks[lock], role);
+        int lock = index >> (levels - l);
+        int i = lock + (1 << l) - 1;
+        if (peterson_acquire(locks[i], role) == -1) {
+            return -1;
+        }
     }
-
+    return 0;
 }
-
-int getTournamentID(int pid) {
-    for (int i = 0; i < processesNum; i++){
-        if (pid == pids[i])
-            return i;
-    }
-    return -1;
-}
-
-int log(int n) {
-    int count = 0;
-    while(n != 1) {
-        count++;
-        n = n << 1;
-    }
-    return count;
-}
-
 
 int tournament_release(void) {
-    int index = getTournamentID(getpid());
+    int index = tournamentId;
     int levels = log(processesNum);
 
     for (int l = 0; l < levels; l++) {
         int role =  (index & (1 << (levels - l - 1))) >> (levels - l - 1);
-        int lock = index >> levels - l;
+        int lock = index >> (levels - l);
+        int i = lock + (1 << l) - 1;
 
-        peterson_release(locks[lock], role);
+        if (peterson_release(locks[i], role) == -1){
+            return -1;
+        }
     }
+    return 0;
 }

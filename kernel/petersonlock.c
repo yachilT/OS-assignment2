@@ -14,6 +14,8 @@
 petersonlock locks[NLOCKS];
 int identifier = 0;
 
+ 
+
 void
 petersonlocksinit(void) {
     petersonlock * lk;
@@ -48,6 +50,7 @@ peterson_acquire(int lock_id, int role){
     petersonlock * lk;
     for (lk = locks; lk < &locks[NLOCKS]; lk++)
     {
+        __sync_synchronize();
         if(lk->id == lock_id){
             lk->flag[role] = 1;
             lk->turn = role;
@@ -65,7 +68,7 @@ peterson_release(int lock_id, int role){
     for (lk = locks; lk < &locks[NLOCKS]; lk++)
     {
         if(lk->id == lock_id){
-            __sync_lock_release(&lk->flag[role]);
+            lk->flag[role] = 0;
             __sync_synchronize();
             return 0;             
         }

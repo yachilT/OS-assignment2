@@ -8,6 +8,7 @@
         "memlayout.h": "c",
         "user.h": "c",
         "petersonlock.h": "c",
-        "syscall.h": "c"
+        "syscall.h": "c",
+        "stat.h": "c"
     },
 }
